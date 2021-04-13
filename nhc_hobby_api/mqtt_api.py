@@ -18,6 +18,7 @@ class MQTTApi(object):
 
     def connect(self, username, password):
         """Connects using username and password credentials"""
+        self.connection_status = None
         self.client = self._connect_to_mqtt(self.ip, username, password)
         return self
 
@@ -52,12 +53,18 @@ class MQTTApi(object):
     def has_initialized(self):
         return True
 
+    def is_connected(self):
+        """Returns True if the credentials were accepted by the gateway and
+        no other connection issues occurred"""
+        return (self.connection_status==0)
+
     #
     # Handlers to be extended
     #
 
     def _on_connect(self, client, userdata, flags, rc):
         """Handle connect events"""
+        self.connection_status = rc
         logging.info(f"CON: Connected with MQTT broker with result code {rc}")
 
     def _on_disconnect(self, client, userdata, rc):
